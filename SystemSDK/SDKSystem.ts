@@ -5,6 +5,7 @@
  * 每个平台对应不同的SDK实现类，通过统一的SDK接口调用各平台功能。
  */
 
+import { ISDK } from '../Interfaces/ISDK';
 import { BasicSystem } from "../Basic/BasicSystem";
 import { clog } from "../Tools/ColorLog";
 import { OPPOSDK } from "./OPPOSDK";
@@ -38,13 +39,13 @@ export enum PlatformType {
 }
 
 /** SDK系统类，负责平台检测和SDK实例化 */
-export class SDKSystem extends BasicSystem {
+export class SDKSystem extends BasicSystem implements ISDK {
     /** 当前运行平台类型，默认为PCMiniGame */
-    public static _curPlatform: PlatformType = PlatformType.PCMiniGame;
+    private static _curPlatform: PlatformType = PlatformType.PCMiniGame;
     /** 当前平台的SDK实例 */
+    public static get curPlatform(): PlatformType { return this._curPlatform; }
     private static _curSDK: SDK = null;
 
-    /** 获取当前平台的SDK实例 */
     public static get curSDK(): SDK { return this._curSDK; }
 
     /**

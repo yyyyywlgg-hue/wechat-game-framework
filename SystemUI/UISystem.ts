@@ -4,6 +4,7 @@
  * 采用栈结构管理当前活跃的UI，支持优先级排序、模态遮罩和返回键关闭等功能。
  */
 
+import { IUI } from '../Interfaces/IUI';
 import { _decorator, Node, Prefab, instantiate } from 'cc';
 import { BasicSystem } from '../Basic/BasicSystem';
 import { BasicUI } from '../Basic/BasicUI';
@@ -38,7 +39,7 @@ interface UIRecord {
 
 /** UI系统类，管理所有UI界面的生命周期和层级关系 */
 @_decorator.ccclass('UISystem')
-export class UISystem extends BasicSystem {
+export class UISystem extends BasicSystem implements IUI {
     /** UI层节点，所有UI界面的父节点 */
     private static uiLayer: Node;
     /** UI记录字典，键为UI名称，值为UIRecord */

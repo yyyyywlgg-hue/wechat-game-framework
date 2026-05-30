@@ -5,6 +5,7 @@
  * 按需显示或隐藏Banner广告。支持按平台配置不同UI的广告策略。
  */
 
+import { IAdvert } from '../Interfaces/IAdvert';
 import { Node } from "cc";
 import { BasicSystem } from "../Basic/BasicSystem";
 import EventManager from "../Managers/EventManager";
@@ -25,7 +26,7 @@ export interface AdUIConfig {
 }
 
 /** 广告系统类，根据UI状态自动控制广告展示 */
-export class AdvertSystem extends BasicSystem {
+export class AdvertSystem extends BasicSystem implements IAdvert {
     /** UI层节点，用于遍历查找当前活跃的UI */
     private static uiLayer: Node = null;
     /** 各平台的广告UI配置，键为PlatformType枚举值 */
@@ -73,7 +74,7 @@ export class AdvertSystem extends BasicSystem {
         if (!data || !data.levelAssets) return;
         if (data.levelAssets.curLv <= this.startLv) return;
 
-        let cfg = this._adUIConfig[SDKSystem._curPlatform];
+        let cfg = this._adUIConfig[SDKSystem.curPlatform];
         if (!cfg) return;
 
         let adCfg = this.getTopActiveUI(cfg);

@@ -6,6 +6,16 @@
 
 ```
 game-framework/
+├── Core/                           核心层
+│   └── ServiceLocator.ts           服务定位器（依赖注入容器）
+├── Interfaces/                     接口层
+│   ├── IStorage.ts                 存储系统接口
+│   ├── IAudio.ts                   音频系统接口
+│   ├── IUI.ts                      UI系统接口
+│   ├── IPool.ts                    对象池接口
+│   ├── ISDK.ts                     SDK系统接口
+│   ├── IAdvert.ts                  广告系统接口
+│   └── ILoader.ts                  资源加载器接口
 ├── Basic/                          基础层
 │   ├── BasicComponent.ts           组件基类（对象池生命周期 + 事件自动管理）
 │   ├── BasicSystem.ts              系统基类
@@ -302,7 +312,7 @@ AudioSystem.setAudioBound('AudioAssets');  // 音频分包名
 
 ```typescript
 // 自动检测平台（init时自动执行）
-let platform = SDKSystem._curPlatform;
+let platform = SDKSystem.curPlatform;
 // PlatformType.PCMiniGame / WXMiniGame / TTMiniGame / OPPOMiniGame / VIVOMiniGame
 
 // 获取当前SDK实例
@@ -491,6 +501,81 @@ clog.error('错误', '内容');    // 红色
 clog.setEnabled(false);        // 关闭所有日志（上线时使用）
 ```
 
+### 14. ServiceLocator - 服务定位器
+
+依赖注入容器，解耦业务代码与具体系统实现。所有系统在 Init.ts 中注册，业务代码通过接口获取服务。
+
+**生产环境使用：**
+
+```typescript
+import { ServiceLocator } from '../Core/ServiceLocator';
+import { IStorage } from '../Interfaces/IStorage';
+import { IAudio } from '../Interfaces/IAudio';
+
+class BattleUI extends BasicUI {
+    private storage: IStorage = ServiceLocator.get(IStorage);
+    private audio: IAudio = ServiceLocator.get(IAudio);
+
+    protected onShow(d?: any) {
+        let gold = this.storage.getData().userAssets.asset;
+        this.audio.playEffect('BtnClick');
+    }
+}
+```
+
+**测试环境注入Mock：**
+
+```typescript
+import { ServiceLocator } from '../Core/ServiceLocator';
+import { IStorage } from '../Interfaces/IStorage';
+
+class MockStorage implements IStorage {
+    private mockData = { userAssets: { asset: 9999 } };
+    getData() { return this.mockData; }
+    setData(cb: Function) { cb(this.mockData); }
+    saveData() { }
+    getJsonData() { return null; }
+    updateToAssets() { }
+    getLevelData() { return {}; }
+    getMaxLvCount() { return 0; }
+}
+
+// 测试前注入Mock
+beforeEach(() => {
+    ServiceLocator.register(IStorage, new MockStorage());
+});
+
+// 测试后清理
+afterEach(() => {
+    ServiceLocator.reset();
+});
+```
+
+**ServiceLocator API：**
+
+| 方法 | 说明 |
+|------|------|
+| `register(key, impl)` | 注册服务实现 |
+| `get<T>(key)` | 获取服务实例 |
+| `has(key)` | 检查服务是否已注册 |
+| `resetOne(key)` | 重置单个服务 |
+| `reset()` | 重置所有服务 |
+| `getRegisteredKeys()` | 获取所有已注册的key |
+
+**接口列表：**
+
+| 接口 | 对应系统 | 说明 |
+|------|---------|------|
+| IStorage | StorageSystem | 存档读写 |
+| IAudio | AudioSystem | 音频播放 |
+| IUI | UISystem | UI管理 |
+| IPool | GlobalPool | 对象池 |
+| ISDK | SDKSystem | SDK适配 |
+| IAdvert | AdvertSystem | 广告管理 |
+| ILoader | Loader | 资源加载 |
+
+**渐进式迁移：** 旧代码可以直接使用静态类调用（`StorageSystem.getData()`），新代码推荐通过接口调用（`ServiceLocator.get(IStorage).getData()`），两种方式可以共存。
+
 ## 快速接入指南
 
 ### 第一步：复制框架
@@ -665,14 +750,20 @@ export class EnemyLayer extends BasicLayer {
 
 广告ID、UI映射、分包路径等通过配置方法注入，框架本身不包含任何业务硬编码。
 
+### 依赖注入（ServiceLocator）
+
+所有系统通过接口+ServiceLocator解耦，业务代码不直接依赖静态类，测试时可注入Mock实现。
+
 ### 分层职责
 
 | 层 | 职责 | 依赖 |
 |----|------|------|
+| Interfaces | 定义系统接口契约 | 无 |
+| Core | 服务定位器（依赖注入） | 无 |
 | Basic | 定义生命周期和基类 | 无 |
 | Config | 全局数据和枚举 | 无 |
 | Managers | 事件通信 | 无 |
-| System* | 各子系统实现 | Basic, Config, Managers |
+| System* | 各子系统实现（实现接口） | Basic, Config, Managers |
 | Tools | 通用工具 | Basic, Config |
 | InitScripts | 启动和流程控制 | 所有层 |
 

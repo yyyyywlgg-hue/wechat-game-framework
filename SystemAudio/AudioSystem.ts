@@ -4,13 +4,14 @@
  * 支持音效开关控制、循环音效管理、音效播放频率限制，以及从本地存储读取音频开关状态。
  */
 
+import { IAudio } from '../Interfaces/IAudio';
 import { AudioClip, AudioSource, warn, Node } from "cc";
 import { BasicSystem } from "../Basic/BasicSystem";
 import { StorageSystem } from "../SystemStorage/StorageSystem";
 import Loader from "../Tools/Loader";
 
 /** 音频系统类，管理BGM和音效的播放控制 */
-export class AudioSystem extends BasicSystem {
+export class AudioSystem extends BasicSystem implements IAudio {
     /** 音频开关状态，Effects控制音效，Bgm控制背景音乐 */
     public static audioSwitch = { Effects: true, Bgm: true };
     /** 所有已加载的音频剪辑缓存，键为音频名称，值为AudioClip对象 */

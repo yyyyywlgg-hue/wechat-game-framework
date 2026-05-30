@@ -10,6 +10,15 @@ import GlobalData from '../Config/GlobalData';
 import { GlobalEnum } from '../Config/GlobalEnum';
 import EventManager from '../Managers/EventManager';
 import { EventTypes } from '../Managers/EventTypes';
+import { ServiceLocator } from '../Core/ServiceLocator';
+import { IStorage } from '../Interfaces/IStorage';
+import { IAudio } from '../Interfaces/IAudio';
+import { IUI } from '../Interfaces/IUI';
+import { IPool } from '../Interfaces/IPool';
+import { ISDK } from '../Interfaces/ISDK';
+import { IAdvert } from '../Interfaces/IAdvert';
+import { ILoader } from '../Interfaces/ILoader';
+import GlobalPool from '../Tools/GlobalPool';
 import { AdvertSystem } from '../SystemAdvert/AdvertSystem';
 import { AudioSystem } from '../SystemAudio/AudioSystem';
 import { SDKSystem } from '../SystemSDK/SDKSystem';
@@ -51,6 +60,14 @@ export class Init extends Component {
         SDKSystem.init();
         UISystem.init(this.uiLayer);
         AdvertSystem.init(this.uiLayer);
+
+        ServiceLocator.register(IStorage, StorageSystem as unknown as IStorage);
+        ServiceLocator.register(IAudio, AudioSystem as unknown as IAudio);
+        ServiceLocator.register(IUI, UISystem as unknown as IUI);
+        ServiceLocator.register(IPool, GlobalPool as unknown as IPool);
+        ServiceLocator.register(ISDK, SDKSystem as unknown as ISDK);
+        ServiceLocator.register(IAdvert, AdvertSystem as unknown as IAdvert);
+        ServiceLocator.register(ILoader, Loader as unknown as ILoader);
     }
 
     /**

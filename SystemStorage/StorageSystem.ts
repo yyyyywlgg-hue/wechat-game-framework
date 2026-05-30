@@ -4,6 +4,7 @@
  * 支持存档数据的合并迁移（新增字段自动补全）、关卡数据加载、JSON配置数据缓存等功能。
  */
 
+import { IStorage } from '../Interfaces/IStorage';
 import { JsonAsset, sys } from "cc";
 import { BasicSystem } from "../Basic/BasicSystem";
 import EventManager from "../Managers/EventManager";
@@ -13,7 +14,7 @@ import Loader from "../Tools/Loader";
 import { StorageTemp } from "./StorageTemp";
 
 /** 存储系统类，管理游戏数据的持久化和关卡配置数据的加载 */
-export class StorageSystem extends BasicSystem {
+export class StorageSystem extends BasicSystem implements IStorage {
     /** localStorage存储的键名，默认为'GameFramework01' */
     private static _storageName = 'GameFramework01';
     /** 当前游戏存档数据实例 */

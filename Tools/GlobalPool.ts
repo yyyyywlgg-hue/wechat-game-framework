@@ -5,6 +5,7 @@
  * 配合 BasicComponent 的 init/reuse/unuse 生命周期方法使用。
  */
 
+import { IPool } from '../Interfaces/IPool';
 import { Prefab, Node, instantiate } from "cc";
 import { BasicComponent } from "../Basic/BasicComponent";
 
@@ -12,7 +13,7 @@ import { BasicComponent } from "../Basic/BasicComponent";
  * 全局对象池管理类
  * 管理所有预制体对应的对象池，提供统一的节点获取和回收接口
  */
-export default class GlobalPool {
+export default class GlobalPool implements IPool {
     /** 所有对象池的映射表，键为预制体名称，值为对应的自动节点池 */
     private static allPools: { [prefabName: string]: AutoNodePool } = {};
 
